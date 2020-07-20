@@ -1,5 +1,6 @@
 import os
 import operator
+import timeit
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
@@ -34,6 +35,13 @@ def find_most_frequent_letter_combo(length: int, start: int, end: int) -> str:
     return max(pairs.items(), key=operator.itemgetter(1))[0]
 
 
+def timing(string, queryset):
+    start = timeit.default_timer()
+    query_explain = queryset.explain()
+    stop = timeit.default_timer()
+    print(string, f"Time: {stop - start}\n", query_explain)
+
+
 def benchmark(start: int, end: int, pretty: bool):
     # Testing short length - 2 chars - and long - 4 chars.
     if start == 0:
@@ -42,10 +50,10 @@ def benchmark(start: int, end: int, pretty: bool):
     freq_4_combo = find_most_frequent_letter_combo(4, start - 1, end - 1)
     for x in [freq_2_combo, freq_4_combo]:
         print(f"Length: {len(x)}")
-        print("CharField, no Index:\n", Item.objects.filter(name__icontains=x)[:15].explain())
-        print("CharField, w/ Index:\n", ItemWithoutIndex.objects.filter(name__icontains=x)[:15].explain())
-        print("SearchVectorField, no Index:\n", Item.objects.filter(name_search__icontains=x)[:15].explain())
-        print("SearchVectorField, w/ Index:\n", ItemWithoutIndex.objects.filter(name_search__icontains=x)[:15].explain())
+        timing("CharField, no Index:\n", Item.objects.filter(name__icontains=x)[:15])
+        timing("CharField, w/ Index:\n", ItemWithoutIndex.objects.filter(name__icontains=x)[:15])
+        timing("SearchVectorField, no Index:\n", Item.objects.filter(name_search__icontains=x)[:15])
+        timing("SearchVectorField, w/ Index:\n", ItemWithoutIndex.objects.filter(name_search__icontains=x)[:15])
 
 
 def create_items(wanted_count: int):
@@ -66,6 +74,9 @@ def create_items(wanted_count: int):
         ItemWithoutIndex.objects.bulk_create(itemsWOIndex, batch_size=5000)
 
     assert Item.objects.count() == wanted_count, f"{Item.objects.count()} {wanted_count}"
+
+    # Calibrate index
+    list(Item.objects.all())
 
 
 class Command(BaseCommand):
