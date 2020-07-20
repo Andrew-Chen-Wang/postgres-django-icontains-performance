@@ -31,7 +31,6 @@ def find_most_frequent_letter_combo(length: int, start: int, end: int) -> str:
             # count the pair in the dict by adding 1 to the current value
             # setdefault will return 0 if the pair is not yet in the dict
             pairs[pair] = pairs.setdefault(pair, 0) + 1
-    print(pairs)
     return max(pairs.items(), key=operator.itemgetter(1))[0]
 
 
@@ -42,31 +41,31 @@ def benchmark(start: int, end: int, pretty: bool):
     freq_2_combo = find_most_frequent_letter_combo(2, start - 1, end - 1)
     freq_4_combo = find_most_frequent_letter_combo(4, start - 1, end - 1)
     for x in [freq_2_combo, freq_4_combo]:
-        # CharField
-        print(Item.objects.filter(name__icontains=x)[:15].explain())
-        print(ItemWithoutIndex.objects.filter(name__icontains=x)[:15].explain())
-        # SearchVectorField
-        print(Item.objects.filter(name_search__icontains=x)[:15].explain())
-        print(ItemWithoutIndex.objects.filter(name_search__icontains=x)[:15].explain())
+        print(f"Length: {len(x)}")
+        print("CharField, no Index:\n", Item.objects.filter(name__icontains=x)[:15].explain())
+        print("CharField, w/ Index:\n", ItemWithoutIndex.objects.filter(name__icontains=x)[:15].explain())
+        print("SearchVectorField, no Index:\n", Item.objects.filter(name_search__icontains=x)[:15].explain())
+        print("SearchVectorField, w/ Index:\n", ItemWithoutIndex.objects.filter(name_search__icontains=x)[:15].explain())
 
 
-def create_items(appending_count: int, wanted_count: int):
+def create_items(wanted_count: int):
     current_count = Item.objects.count()
-    if not current_count >= wanted_count:
+    appending_count = wanted_count - current_count
+    if appending_count > 0:
         print(f"Creating {appending_count} more items for {wanted_count} total.")
         items = []
         itemsWOIndex = []
         for i, char in enumerate(words):
-            if i < current_count + appending_count:
+            if i < current_count:
                 continue
-            elif i == wanted_count - appending_count - 1:
+            elif i == wanted_count:
                 break
             items.append(Item(name=char))
             itemsWOIndex.append(ItemWithoutIndex(name=char))
         Item.objects.bulk_create(items, batch_size=5000)
         ItemWithoutIndex.objects.bulk_create(itemsWOIndex, batch_size=5000)
 
-    # assert Item.objects.count() == wanted_count
+    assert Item.objects.count() == wanted_count, f"{Item.objects.count()} {wanted_count}"
 
 
 class Command(BaseCommand):
@@ -83,8 +82,6 @@ class Command(BaseCommand):
         parser.add_argument('--use-existing', type=bool, help="Specify if use existing database", default=False)
 
     def handle(self, *args, **options):
-        # Item.objects.create(name="chair")
-        # ItemWithoutIndex.objects.create(name="chair")
         if not options["use_existing"]:
             call_command("flush", "--noinput")
 
@@ -101,33 +98,33 @@ class Command(BaseCommand):
 
         # Start Tests
         # Level 1: first 20,000 items
-        create_items(20000, 20000)
+        create_items(20000)
         if options["n"] in (1, None):
             print("Level 1: first 20,000 items")
             benchmark(0, 20000, options["less"])
 
         # Level 2: + 80,000 = 100,000 items
-        create_items(80000, 100000)
+        create_items(100000)
         if options["n"] in (2, None):
             print("Level 2: + 80,000 = 100,000 items")
             benchmark(20000, 100000, options["less"])
 
         # Level 3: + 100,000 = 200,000 items
-        create_items(100000, 200000)
+        create_items(200000)
         if options["n"] in (3, None):
             print("Level 3: + 100,000 = 200,000 items")
             benchmark(100000, 200000, options["less"])
 
         # Level 4: + 170,099 = 370,099 items, all words
-        create_items(170099, 370099)
+        create_items(370099)
         if options["n"] in (4, None):
             print("Level 4: + 170,099 = 370099 items, all words")
             benchmark(200000, 370099, options["less"])
 
         # Level 5: + 300,000 = 500,000 items
-        create_items(300000, 500000)
-        # This will be kind of weird in that we're combining words
-        # from opposite ends of the alphabet and scrambling them.
-        if options["n"] in (5, None):
-            print("Level 5: + 300,000 = 500,000 items")
-            benchmark(370099, 500000, options["less"])
+        # create_items(500000)
+        # # This will be kind of weird in that we're combining words
+        # # from opposite ends of the alphabet and scrambling them.
+        # if options["n"] in (5, None):
+        #     print("Level 5: + 300,000 = 500,000 items")
+        #     benchmark(370099, 500000, options["less"])
