@@ -81,7 +81,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'typeahead',
         'USER': 'postgres',
-        'PORT': '5432',
+        'PORT': '5433' if os.getenv("TRAVIS") == "true" else "5432",
         'HOST': 'localhost'
     }
 }
