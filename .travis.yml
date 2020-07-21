@@ -21,7 +21,7 @@ jobs:
         - PGPORT=5433
       install:
         - pip install -r requirements.txt
-        - psql -c 'create database typeahead'
+        - psql -c 'create database typeahead;' -U postgres
         - python manage.py migrate
       script:
         - python manage.py benchmark
