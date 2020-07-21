@@ -36,17 +36,21 @@ def find_most_frequent_letter_combo(length: int, start: int, end: int) -> str:
     return max(pairs.items(), key=operator.itemgetter(1))[0]
 
 
-def timing(string, queryset, pretty: bool):
-    start = timeit.default_timer()
-    query_explain = queryset.explain()
-    stop = timeit.default_timer()
+def timing(string, queryset, pretty: bool, iterations: int = 10000):
+    times = []
+    for x in range(iterations):
+        start = timeit.default_timer()
+        queryset.explain()
+        stop = timeit.default_timer()
+        times.append(stop - start)
+    avg_time = sum(times) / iterations
     if pretty:
-        print(string, f"Time: {stop - start}\n")
+        print(string, f"Time: {avg_time}\n")
     else:
-        print(string, f"Time: {stop - start}\n", query_explain)
+        print(string, f"Time: {avg_time}\n", queryset.explain())
 
 
-def benchmark(start: int, end: int, pretty: bool):
+def benchmark(start: int, end: int, iterations: int, pretty: bool):
     # Testing short length - 2 chars - and long - 4 chars.
     if start == 0:
         start = 1
@@ -54,17 +58,37 @@ def benchmark(start: int, end: int, pretty: bool):
     freq_4_combo = find_most_frequent_letter_combo(4, start - 1, end - 1)
     for x in [freq_2_combo, freq_4_combo]:
         print(f"Length: {len(x)}")
-        timing("CharField, no Index:\n", ItemWithoutIndex.objects.filter(name__icontains=x)[:15], pretty)
-        timing("SearchVectorField, no Index:\n", ItemWithoutIndex.objects.filter(name_search__icontains=x)[:15], pretty)
+        timing(
+            "CharField, no Index:\n",
+            ItemWithoutIndex.objects.filter(name__icontains=x)[:15],
+            pretty,
+            iterations
+        )
+        timing(
+            "SearchVectorField, no Index:\n",
+            ItemWithoutIndex.objects.filter(name_search__icontains=x)[:15],
+            pretty,
+            iterations
+        )
 
         with connection.cursor() as cursor:
-            timing("CharField, w/ Index:\n", Item.objects.filter(name__icontains=x)[:15], pretty)
+            timing(
+                "CharField, w/ Index:\n",
+                Item.objects.filter(name__icontains=x)[:15],
+                pretty,
+                iterations
+            )
             cursor.execute("SELECT pg_table_size('item_name_index');")
             size = cursor.fetchone()[0]
             print(f"B-Tree Index Size: {size} bytes or {size / 1000000} MB")
 
         with connection.cursor() as cursor:
-            timing("SearchVectorField, w/ Index:\n", Item.objects.filter(name_search__icontains=x)[:15], pretty)
+            timing(
+                "SearchVectorField, w/ Index:\n",
+                Item.objects.filter(name_search__icontains=x)[:15],
+                pretty,
+                iterations
+            )
             cursor.execute("SELECT pg_table_size('item_name_search_gin_index');")
             size = cursor.fetchone()[0]
             print(f"GIN Index Size: {size} bytes or {size / 1000000} MB")
@@ -104,6 +128,8 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('-l', "--less", type=bool, help='Show more or less detail.', default=False)
         parser.add_argument('-n', type=int, help='The level/arbitrary num of objects to create.')
+        parser.add_argument('-i', '--iterations', type=int,
+                            help='The number of iterations to perform per query for an average.', default=10000)
         parser.add_argument('--use-existing', type=bool, help="Specify if use existing database", default=False)
 
     def handle(self, *args, **options):
@@ -126,25 +152,25 @@ class Command(BaseCommand):
         create_items(20000)
         if options["n"] in (1, None):
             print("Level 1: first 20,000 items")
-            benchmark(0, 20000, options["less"])
+            benchmark(0, 20000, options["iterations"], options["less"])
 
         # Level 2: + 80,000 = 100,000 items
         create_items(100000)
         if options["n"] in (2, None):
             print("Level 2: + 80,000 = 100,000 items")
-            benchmark(20000, 100000, options["less"])
+            benchmark(20000, 100000, options["iterations"], options["less"])
 
         # Level 3: + 100,000 = 200,000 items
         create_items(200000)
         if options["n"] in (3, None):
             print("Level 3: + 100,000 = 200,000 items")
-            benchmark(100000, 200000, options["less"])
+            benchmark(100000, 200000, options["iterations"], options["less"])
 
         # Level 4: + 170,099 = 370,099 items, all words
         create_items(370099)
         if options["n"] in (4, None):
             print("Level 4: + 170,099 = 370099 items, all words")
-            benchmark(200000, 370099, options["less"])
+            benchmark(200000, 370099, options["iterations"], options["less"])
 
         # Level 5: + 300,000 = 500,000 items
         # create_items(500000)

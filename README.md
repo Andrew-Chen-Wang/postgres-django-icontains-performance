@@ -25,37 +25,38 @@ to make sure latency wasn't a factor.
 
 Filtering was based on the most frequent two or four letter combo.
 I also added the index size (note, they're the same regardless of
-the table.)
+the table.). Each query was performed 10,000 times to find an average.
 
 The following are the results for a two letter query using `icontains`.
 
 |                      | 20,000               | 100,000              | 200,000              | 370,099              |
 |----------------------|----------------------|----------------------|----------------------|----------------------|
-| CharField            | .0018870119999991886 | .0011454019999987963 | .0007141570000044339 | .000861889999995924  |
-| SearchVectorField    | .0008137989999994488 | .0006560049999997375 | .0007020010000005072 | .0006000810000017509 |
-| Char + Index         | .0006321439999998901 | .0008057759999999803 | .0005880140000016354 | .000538313999996376  |
-| SearchVector + Index | .0005834329999991894 | .0009325770000003786 | .0005893750000041109 | .0005222089999961099 |
-| BTree Index (bytes)  | 770048               | 4055040              | 7970816              | 14606336             |
-| GIN Index (bytes)    | 499712               | 2433024              | 11370496             | 15851520             |
+| CharField            | .0020984089619000036 | .001988032292700123  | .0018991238057999682 | .002431822135300274  |
+| SearchVectorField    | .0018781357522999987 | .0018380841300998838 | .0018222256922999236 | .0020044095713000957 |
+| Char + Index         | .0019768946458000114 | .001993863645300016  | .002191165284899802  | .002203354655999294  |
+| SearchVector + Index | .0018827794286000725 | .001803563312999941  | .0028036326952002527 | .0020528471941995575 |
+| BTree Index (bytes)  | 737280               | 4038656              | 7987200              | 14426112             |
+| GIN Index (bytes)    | 1744896              | 6807552              | 8626176              | 15204352             |
 
 The following are the results for a four letter query using `icontains`.
 
 |                      | 20,000               | 100,000              | 200,000              | 370,099              |
 |----------------------|----------------------|----------------------|----------------------|----------------------|
-| CharField            | .0005825000000001523 | .0013767680000000837 | .0005893750000041109 | .0005648419999957355 |
-| SearchVectorField    | .0005575970000002428 | .0008295879999984379 | .0007504889999978559 | .0005678309999979092 |
-| Char + Index         | .0005883070000001211 | .0007131819999983691 | .001916348000001733  | .0006092080000001943 |
-| SearchVector + Index | .0005402690000000376 | .0006276289999966878 | .0006567059999937896 | .0005303149999988932 |
-| BTree Index (bytes)  | 770048               | 4055040              | 7970816              | 14606336             |
-| GIN Index (bytes)    | 499712               | 2433024              | 11370496             | 15851520             |
+| CharField            | .0018526022455000173 | .0019125986364002727 | .002491743599299855  | .002018236057499246  |
+| SearchVectorField    | .0020149282166999783 | .0018530558955002902 | .0022240866331000573 | .0018321708575997832 |
+| Char + Index         | .001893137184600016  | .0019434230315999229 | .002137830329800192  | .0019526920810996671 |
+| SearchVector + Index | .0018650680977999798 | .0017777047066997965 | .0023440439428003    | .001942467717500449  |
+| BTree Index (bytes)  | 737280               | 4038656              | 7987200              | 14426112             |
+| GIN Index (bytes)    | 1744896              | 6807552              | 8626176              | 15204352             |
+
+After multiple experiments, the index size stays relatively the same, except for the first 100 thousand.
 
 To see the full results, check out [results.txt](https://github.com/Andrew-Chen-Wang/postgres-django-icontains-performance/blob/master/results.txt).
 
 ## Conclusion
 
 The two biggest factors seemed to be the length of user input
-and the number of objects in the database. There is
-also a slight inverse relationship between the two.
+and the number of objects in the database.
 
 This is mainly for finding the most efficient method of querying
 using `icontains`. For Donate Anything, there probably won't
@@ -64,7 +65,12 @@ translations. I plan on adding some plug-ins like stem removing
 and the un-accent extension to save some space in addition to
 a dictionary of words that definitely shouldn't be in the tokenization.
 
-Based on the results, the search time is minimal, even up to
+Basically, there's no need for the SearchVectorField. A simple
+CharField is enough, and although
+it seems like there's almost no need for the B-Tree index,
+we do have to make sure there is uniqueness for the name.
+
+Based on the results, the search time is minuscule, even up to
 370099 words. This is regardless of the field and index. 
 A caveat is definitely the fact that many items
 are two or more words long.
