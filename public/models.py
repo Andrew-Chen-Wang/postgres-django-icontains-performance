@@ -19,7 +19,10 @@ class ItemWithoutIndex(ItemAbstract):
 
 
 class Item(ItemAbstract):
+    name = models.CharField(max_length=100, unique=True, db_index=False)
+
     class Meta:
         indexes = (
+            models.Index(name="item_name_index", fields=("name",)),
             GinIndex(name="item_name_search_gin_index", fields=("name_search",)),
         )

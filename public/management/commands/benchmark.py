@@ -5,6 +5,7 @@ import timeit
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.core.management import call_command
+from django.db import connection
 
 from public.models import Item, ItemWithoutIndex
 
@@ -35,11 +36,14 @@ def find_most_frequent_letter_combo(length: int, start: int, end: int) -> str:
     return max(pairs.items(), key=operator.itemgetter(1))[0]
 
 
-def timing(string, queryset):
+def timing(string, queryset, pretty: bool):
     start = timeit.default_timer()
     query_explain = queryset.explain()
     stop = timeit.default_timer()
-    print(string, f"Time: {stop - start}\n", query_explain)
+    if pretty:
+        print(string, f"Time: {stop - start}\n")
+    else:
+        print(string, f"Time: {stop - start}\n", query_explain)
 
 
 def benchmark(start: int, end: int, pretty: bool):
@@ -50,10 +54,20 @@ def benchmark(start: int, end: int, pretty: bool):
     freq_4_combo = find_most_frequent_letter_combo(4, start - 1, end - 1)
     for x in [freq_2_combo, freq_4_combo]:
         print(f"Length: {len(x)}")
-        timing("CharField, no Index:\n", Item.objects.filter(name__icontains=x)[:15])
-        timing("CharField, w/ Index:\n", ItemWithoutIndex.objects.filter(name__icontains=x)[:15])
-        timing("SearchVectorField, no Index:\n", Item.objects.filter(name_search__icontains=x)[:15])
-        timing("SearchVectorField, w/ Index:\n", ItemWithoutIndex.objects.filter(name_search__icontains=x)[:15])
+        timing("CharField, no Index:\n", ItemWithoutIndex.objects.filter(name__icontains=x)[:15], pretty)
+        timing("SearchVectorField, no Index:\n", ItemWithoutIndex.objects.filter(name_search__icontains=x)[:15], pretty)
+
+        with connection.cursor() as cursor:
+            timing("CharField, w/ Index:\n", Item.objects.filter(name__icontains=x)[:15], pretty)
+            cursor.execute("SELECT pg_table_size('item_name_index');")
+            size = cursor.fetchone()[0]
+            print(f"B-Tree Index Size: {size} bytes or {size / 1000000} MB")
+
+        with connection.cursor() as cursor:
+            timing("SearchVectorField, w/ Index:\n", Item.objects.filter(name_search__icontains=x)[:15], pretty)
+            cursor.execute("SELECT pg_table_size('item_name_search_gin_index');")
+            size = cursor.fetchone()[0]
+            print(f"GIN Index Size: {size} bytes or {size / 1000000} MB")
 
 
 def create_items(wanted_count: int):

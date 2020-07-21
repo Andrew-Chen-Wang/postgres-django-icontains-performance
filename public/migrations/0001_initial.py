@@ -31,7 +31,7 @@ class Migration(migrations.Migration):
             name='Item',
             fields=[
                 ('id', models.BigAutoField(primary_key=True, serialize=False)),
-                ('name', models.CharField(max_length=100)),
+                ('name', models.CharField(max_length=100, unique=True)),
                 ('name_search', django.contrib.postgres.search.SearchVectorField(null=True)),
             ],
             options={
@@ -52,6 +52,10 @@ class Migration(migrations.Migration):
         migrations.AddIndex(
             model_name='item',
             index=django.contrib.postgres.indexes.GinIndex(fields=['name_search'], name='item_name_search_gin_index'),
+        ),
+        migrations.AddIndex(
+            model_name='item',
+            index=models.Index(fields=['name'], name='item_name_index'),
         ),
         migrations.RunSQL(ts_vector_trigger, reverse_ts_vector_trigger),
     ]
