@@ -17,6 +17,17 @@ def load_words() -> set:
     return valid_words
 
 
+# Check if words_alpha.txt exists
+path_to_dictionary = os.path.join(settings.BASE_DIR, "words_alpha.txt")
+if not os.path.exists(path_to_dictionary):
+    import zipfile
+    try:
+        with zipfile.ZipFile(path_to_dictionary[:-3] + "zip", "r") as zip_ref:
+            zip_ref.extractall(settings.BASE_DIR)
+    except FileNotFoundError as e:
+        raise FileNotFoundError(f"You must include the zip file of the English"
+                                f" dictionary in the BASE_DIR, specified:\n{e}.")
+
 words = [x.lower() for x in load_words()]
 
 
@@ -109,17 +120,6 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         if not options["use_existing"]:
             call_command("flush", "--noinput")
-
-        # Check if words_alpha.txt exists
-        path_to_dictionary = os.path.join(settings.BASE_DIR, "words_alpha.txt")
-        if not os.path.exists(path_to_dictionary):
-            import zipfile
-            try:
-                with zipfile.ZipFile(path_to_dictionary[:-3] + "zip", "r") as zip_ref:
-                    zip_ref.extractall(settings.BASE_DIR)
-            except FileNotFoundError as e:
-                raise FileNotFoundError(f"You must include the zip file of the English"
-                                        f" dictionary in the BASE_DIR, specified:\n{e}.")
 
         # Start Tests
         # Level 1: first 20,000 items
