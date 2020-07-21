@@ -2,175 +2,191 @@ Creating 20000 more items for 20000 total.
 Level 1: first 20,000 items
 Length: 2
 CharField, no Index:
- Time: 0.014103893999999784
- Limit  (cost=0.00..1.74 rows=15 width=39)
-  ->  Seq Scan on public_item  (cost=0.00..495.44 rows=4259 width=39)
-        Filter: (upper((name)::text) ~~ '%IN%'::text)
-CharField, w/ Index:
- Time: 0.0012791679999999417
+ Time: 0.0018870119999991886
  Limit  (cost=0.00..1.85 rows=15 width=50)
   ->  Seq Scan on public_itemwithoutindex  (cost=0.00..317.44 rows=2579 width=50)
         Filter: (upper((name)::text) ~~ '%IN%'::text)
 SearchVectorField, no Index:
- Time: 0.0009419720000005682
- Limit  (cost=0.00..2.12 rows=15 width=39)
-  ->  Seq Scan on public_item  (cost=0.00..601.92 rows=4259 width=39)
-        Filter: (upper((name_search)::text) ~~ '%IN%'::text)
-SearchVectorField, w/ Index:
- Time: 0.0008850980000003617
+ Time: 0.0008137989999994488
  Limit  (cost=0.00..2.22 rows=15 width=50)
   ->  Seq Scan on public_itemwithoutindex  (cost=0.00..381.92 rows=2579 width=50)
         Filter: (upper((name_search)::text) ~~ '%IN%'::text)
+CharField, w/ Index:
+ Time: 0.0006321439999998901
+ Limit  (cost=0.00..1.74 rows=15 width=39)
+  ->  Seq Scan on public_item  (cost=0.00..495.44 rows=4259 width=39)
+        Filter: (upper((name)::text) ~~ '%IN%'::text)
+B-Tree Index Size: 770048 bytes or 0.770048 MB
+SearchVectorField, w/ Index:
+ Time: 0.0005834329999991894
+ Limit  (cost=0.00..2.12 rows=15 width=39)
+  ->  Seq Scan on public_item  (cost=0.00..601.92 rows=4259 width=39)
+        Filter: (upper((name_search)::text) ~~ '%IN%'::text)
+GIN Index Size: 499712 bytes or 0.499712 MB
 Length: 4
 CharField, no Index:
- Time: 0.0008273679999994954
- Limit  (cost=0.00..43.72 rows=15 width=39)
-  ->  Seq Scan on public_item  (cost=0.00..495.44 rows=170 width=39)
-        Filter: (upper((name)::text) ~~ '%ATIO%'::text)
-CharField, w/ Index:
- Time: 0.000635790000000469
+ Time: 0.0005825000000001523
  Limit  (cost=0.00..46.23 rows=15 width=50)
   ->  Seq Scan on public_itemwithoutindex  (cost=0.00..317.44 rows=103 width=50)
         Filter: (upper((name)::text) ~~ '%ATIO%'::text)
 SearchVectorField, no Index:
- Time: 0.000646103000000231
- Limit  (cost=0.00..53.11 rows=15 width=39)
-  ->  Seq Scan on public_item  (cost=0.00..601.92 rows=170 width=39)
-        Filter: (upper((name_search)::text) ~~ '%ATIO%'::text)
-SearchVectorField, w/ Index:
- Time: 0.0006452390000006858
+ Time: 0.0005575970000002428
  Limit  (cost=0.00..55.62 rows=15 width=50)
   ->  Seq Scan on public_itemwithoutindex  (cost=0.00..381.92 rows=103 width=50)
         Filter: (upper((name_search)::text) ~~ '%ATIO%'::text)
+CharField, w/ Index:
+ Time: 0.0005883070000001211
+ Limit  (cost=0.00..43.72 rows=15 width=39)
+  ->  Seq Scan on public_item  (cost=0.00..495.44 rows=170 width=39)
+        Filter: (upper((name)::text) ~~ '%ATIO%'::text)
+B-Tree Index Size: 770048 bytes or 0.770048 MB
+SearchVectorField, w/ Index:
+ Time: 0.0005402690000000376
+ Limit  (cost=0.00..53.11 rows=15 width=39)
+  ->  Seq Scan on public_item  (cost=0.00..601.92 rows=170 width=39)
+        Filter: (upper((name_search)::text) ~~ '%ATIO%'::text)
+GIN Index Size: 499712 bytes or 0.499712 MB
 Creating 80000 more items for 100000 total.
 Level 2: + 80,000 = 100,000 items
 Length: 2
 CharField, no Index:
- Time: 0.0009496909999988645
- Limit  (cost=0.00..1.74 rows=15 width=39)
-  ->  Seq Scan on public_item  (cost=0.00..2471.57 rows=21248 width=39)
-        Filter: (upper((name)::text) ~~ '%IN%'::text)
-CharField, w/ Index:
- Time: 0.0006036560000008961
+ Time: 0.0011454019999987963
  Limit  (cost=0.00..1.85 rows=15 width=50)
   ->  Seq Scan on public_itemwithoutindex  (cost=0.00..1576.96 rows=12813 width=50)
         Filter: (upper((name)::text) ~~ '%IN%'::text)
 SearchVectorField, no Index:
- Time: 0.0004928250000002521
- Limit  (cost=0.00..2.12 rows=15 width=39)
-  ->  Seq Scan on public_item  (cost=0.00..3002.76 rows=21248 width=39)
-        Filter: (upper((name_search)::text) ~~ '%IN%'::text)
-SearchVectorField, w/ Index:
- Time: 0.0005101700000000875
+ Time: 0.0006560049999997375
  Limit  (cost=0.00..2.22 rows=15 width=50)
   ->  Seq Scan on public_itemwithoutindex  (cost=0.00..1897.28 rows=12813 width=50)
         Filter: (upper((name_search)::text) ~~ '%IN%'::text)
+CharField, w/ Index:
+ Time: 0.0008057759999999803
+ Limit  (cost=0.00..1.74 rows=15 width=39)
+  ->  Seq Scan on public_item  (cost=0.00..2471.57 rows=21248 width=39)
+        Filter: (upper((name)::text) ~~ '%IN%'::text)
+B-Tree Index Size: 4055040 bytes or 4.05504 MB
+SearchVectorField, w/ Index:
+ Time: 0.0009325770000003786
+ Limit  (cost=0.00..2.12 rows=15 width=39)
+  ->  Seq Scan on public_item  (cost=0.00..3002.76 rows=21248 width=39)
+        Filter: (upper((name_search)::text) ~~ '%IN%'::text)
+GIN Index Size: 2433024 bytes or 2.433024 MB
 Length: 4
 CharField, no Index:
- Time: 0.000500467000000171
- Limit  (cost=0.00..43.62 rows=15 width=39)
-  ->  Seq Scan on public_item  (cost=0.00..2471.57 rows=850 width=39)
-        Filter: (upper((name)::text) ~~ '%ATIO%'::text)
-CharField, w/ Index:
- Time: 0.0004974549999996469
+ Time: 0.0013767680000000837
  Limit  (cost=0.00..46.11 rows=15 width=50)
   ->  Seq Scan on public_itemwithoutindex  (cost=0.00..1576.96 rows=513 width=50)
         Filter: (upper((name)::text) ~~ '%ATIO%'::text)
 SearchVectorField, no Index:
- Time: 0.0005348899999990664
- Limit  (cost=0.00..52.99 rows=15 width=39)
-  ->  Seq Scan on public_item  (cost=0.00..3002.76 rows=850 width=39)
-        Filter: (upper((name_search)::text) ~~ '%ATIO%'::text)
-SearchVectorField, w/ Index:
- Time: 0.0004988819999987015
+ Time: 0.0008295879999984379
  Limit  (cost=0.00..55.48 rows=15 width=50)
   ->  Seq Scan on public_itemwithoutindex  (cost=0.00..1897.28 rows=513 width=50)
         Filter: (upper((name_search)::text) ~~ '%ATIO%'::text)
+CharField, w/ Index:
+ Time: 0.0007131819999983691
+ Limit  (cost=0.00..43.62 rows=15 width=39)
+  ->  Seq Scan on public_item  (cost=0.00..2471.57 rows=850 width=39)
+        Filter: (upper((name)::text) ~~ '%ATIO%'::text)
+B-Tree Index Size: 4055040 bytes or 4.05504 MB
+SearchVectorField, w/ Index:
+ Time: 0.0006276289999966878
+ Limit  (cost=0.00..52.99 rows=15 width=39)
+  ->  Seq Scan on public_item  (cost=0.00..3002.76 rows=850 width=39)
+        Filter: (upper((name_search)::text) ~~ '%ATIO%'::text)
+GIN Index Size: 2433024 bytes or 2.433024 MB
 Creating 100000 more items for 200000 total.
 Level 3: + 100,000 = 200,000 items
 Length: 2
 CharField, no Index:
- Time: 0.0008854089999985604
+ Time: 0.0015241960000054178
+ Limit  (cost=0.00..1.85 rows=15 width=50)
+  ->  Seq Scan on public_itemwithoutindex  (cost=0.00..3153.92 rows=25626 width=50)
+        Filter: (upper((name)::text) ~~ '%IN%'::text)
+SearchVectorField, no Index:
+ Time: 0.0007141570000044339
+ Limit  (cost=0.00..2.22 rows=15 width=50)
+  ->  Seq Scan on public_itemwithoutindex  (cost=0.00..3794.56 rows=25626 width=50)
+        Filter: (upper((name_search)::text) ~~ '%IN%'::text)
+CharField, w/ Index:
+ Time: 0.0007020010000005072
  Limit  (cost=0.00..1.74 rows=15 width=39)
   ->  Seq Scan on public_item  (cost=0.00..4943.14 rows=42495 width=39)
         Filter: (upper((name)::text) ~~ '%IN%'::text)
-CharField, w/ Index:
- Time: 0.0005743679999987705
- Limit  (cost=0.00..1.85 rows=15 width=50)
-  ->  Seq Scan on public_itemwithoutindex  (cost=0.00..3151.36 rows=25605 width=50)
-        Filter: (upper((name)::text) ~~ '%IN%'::text)
-SearchVectorField, no Index:
- Time: 0.0005886239999988163
+B-Tree Index Size: 7970816 bytes or 7.970816 MB
+SearchVectorField, w/ Index:
+ Time: 0.0005880140000016354
  Limit  (cost=0.00..2.12 rows=15 width=39)
   ->  Seq Scan on public_item  (cost=0.00..6005.52 rows=42495 width=39)
         Filter: (upper((name_search)::text) ~~ '%IN%'::text)
-SearchVectorField, w/ Index:
- Time: 0.0008045750000000851
- Limit  (cost=0.00..2.22 rows=15 width=50)
-  ->  Seq Scan on public_itemwithoutindex  (cost=0.00..3791.48 rows=25605 width=50)
-        Filter: (upper((name_search)::text) ~~ '%IN%'::text)
+GIN Index Size: 11370496 bytes or 11.370496 MB
 Length: 4
 CharField, no Index:
- Time: 0.0007317950000000906
+ Time: 0.0005893750000041109
+ Limit  (cost=0.00..46.15 rows=15 width=50)
+  ->  Seq Scan on public_itemwithoutindex  (cost=0.00..3153.92 rows=1025 width=50)
+        Filter: (upper((name)::text) ~~ '%ATIO%'::text)
+SearchVectorField, no Index:
+ Time: 0.0007504889999978559
+ Limit  (cost=0.00..55.53 rows=15 width=50)
+  ->  Seq Scan on public_itemwithoutindex  (cost=0.00..3794.56 rows=1025 width=50)
+        Filter: (upper((name_search)::text) ~~ '%ATIO%'::text)
+CharField, w/ Index:
+ Time: 0.001916348000001733
  Limit  (cost=0.00..43.62 rows=15 width=39)
   ->  Seq Scan on public_item  (cost=0.00..4943.14 rows=1700 width=39)
         Filter: (upper((name)::text) ~~ '%ATIO%'::text)
-CharField, w/ Index:
- Time: 0.02593128100000186
- Limit  (cost=0.00..46.16 rows=15 width=50)
-  ->  Seq Scan on public_itemwithoutindex  (cost=0.00..3151.36 rows=1024 width=50)
-        Filter: (upper((name)::text) ~~ '%ATIO%'::text)
-SearchVectorField, no Index:
- Time: 0.0013678130000016608
+B-Tree Index Size: 7970816 bytes or 7.970816 MB
+SearchVectorField, w/ Index:
+ Time: 0.0006567059999937896
  Limit  (cost=0.00..52.99 rows=15 width=39)
   ->  Seq Scan on public_item  (cost=0.00..6005.52 rows=1700 width=39)
         Filter: (upper((name_search)::text) ~~ '%ATIO%'::text)
-SearchVectorField, w/ Index:
- Time: 0.0012058699999997202
- Limit  (cost=0.00..55.54 rows=15 width=50)
-  ->  Seq Scan on public_itemwithoutindex  (cost=0.00..3791.48 rows=1024 width=50)
-        Filter: (upper((name_search)::text) ~~ '%ATIO%'::text)
+GIN Index Size: 11370496 bytes or 11.370496 MB
 Creating 170099 more items for 370099 total.
 Level 4: + 170,099 = 370099 items, all words
 Length: 2
 CharField, no Index:
- Time: 0.007795620000003112
- Limit  (cost=0.00..1.78 rows=15 width=39)
-  ->  Seq Scan on public_item  (cost=0.00..8800.49 rows=74020 width=39)
-        Filter: (upper((name)::text) ~~ '%IN%'::text)
-CharField, w/ Index:
- Time: 0.0008722190000014507
- Limit  (cost=0.00..1.64 rows=15 width=50)
-  ->  Seq Scan on public_itemwithoutindex  (cost=0.00..7212.30 rows=65791 width=50)
+ Time: 0.000861889999995924
+ Limit  (cost=0.00..1.85 rows=15 width=50)
+  ->  Seq Scan on public_itemwithoutindex  (cost=0.00..5831.68 rows=47382 width=50)
         Filter: (upper((name)::text) ~~ '%IN%'::text)
 SearchVectorField, no Index:
- Time: 0.0005851559999996425
- Limit  (cost=0.00..2.16 rows=15 width=39)
-  ->  Seq Scan on public_item  (cost=0.00..10650.98 rows=74020 width=39)
+ Time: 0.0006000810000017509
+ Limit  (cost=0.00..2.22 rows=15 width=50)
+  ->  Seq Scan on public_itemwithoutindex  (cost=0.00..7016.24 rows=47382 width=50)
         Filter: (upper((name_search)::text) ~~ '%IN%'::text)
+CharField, w/ Index:
+ Time: 0.000538313999996376
+ Limit  (cost=0.00..1.74 rows=15 width=39)
+  ->  Seq Scan on public_item  (cost=0.00..9145.93 rows=78626 width=39)
+        Filter: (upper((name)::text) ~~ '%IN%'::text)
+B-Tree Index Size: 14606336 bytes or 14.606336 MB
 SearchVectorField, w/ Index:
- Time: 0.000564265000001285
- Limit  (cost=0.00..2.02 rows=15 width=50)
-  ->  Seq Scan on public_itemwithoutindex  (cost=0.00..8857.06 rows=65791 width=50)
+ Time: 0.0005222089999961099
+ Limit  (cost=0.00..2.12 rows=15 width=39)
+  ->  Seq Scan on public_item  (cost=0.00..11111.58 rows=78626 width=39)
         Filter: (upper((name_search)::text) ~~ '%IN%'::text)
+GIN Index Size: 15851520 bytes or 15.85152 MB
 Length: 4
 CharField, no Index:
- Time: 0.0005774899999977379
- Limit  (cost=0.00..44.58 rows=15 width=39)
-  ->  Seq Scan on public_item  (cost=0.00..8800.49 rows=2961 width=39)
-        Filter: (upper((name)::text) ~~ '%ATIO%'::text)
-CharField, w/ Index:
- Time: 0.0005812670000011622
- Limit  (cost=0.00..41.10 rows=15 width=50)
-  ->  Seq Scan on public_itemwithoutindex  (cost=0.00..7212.30 rows=2632 width=50)
+ Time: 0.0005648419999957355
+ Limit  (cost=0.00..46.16 rows=15 width=50)
+  ->  Seq Scan on public_itemwithoutindex  (cost=0.00..5831.68 rows=1895 width=50)
         Filter: (upper((name)::text) ~~ '%ATIO%'::text)
 SearchVectorField, no Index:
- Time: 0.0005922900000001619
- Limit  (cost=0.00..53.96 rows=15 width=39)
-  ->  Seq Scan on public_item  (cost=0.00..10650.98 rows=2961 width=39)
+ Time: 0.0005678309999979092
+ Limit  (cost=0.00..55.54 rows=15 width=50)
+  ->  Seq Scan on public_itemwithoutindex  (cost=0.00..7016.24 rows=1895 width=50)
         Filter: (upper((name_search)::text) ~~ '%ATIO%'::text)
+CharField, w/ Index:
+ Time: 0.0006092080000001943
+ Limit  (cost=0.00..43.62 rows=15 width=39)
+  ->  Seq Scan on public_item  (cost=0.00..9145.93 rows=3145 width=39)
+        Filter: (upper((name)::text) ~~ '%ATIO%'::text)
+B-Tree Index Size: 14606336 bytes or 14.606336 MB
 SearchVectorField, w/ Index:
- Time: 0.0006667739999954847
- Limit  (cost=0.00..50.48 rows=15 width=50)
-  ->  Seq Scan on public_itemwithoutindex  (cost=0.00..8857.06 rows=2632 width=50)
+ Time: 0.0005303149999988932
+ Limit  (cost=0.00..53.00 rows=15 width=39)
+  ->  Seq Scan on public_item  (cost=0.00..11111.58 rows=3145 width=39)
         Filter: (upper((name_search)::text) ~~ '%ATIO%'::text)
+GIN Index Size: 15851520 bytes or 15.85152 MB

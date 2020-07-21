@@ -24,40 +24,45 @@ the table. The index used was GIN; specifics are in
 to make sure latency wasn't a factor.
 
 Filtering was based on the most frequent two or four letter combo.
+I also added the index size (note, they're the same regardless of
+the table.)
 
 The following are the results for a two letter query using `icontains`.
 
-|                      | 20,000               | 100,000              | 200,000              | 370099               |
+|                      | 20,000               | 100,000              | 200,000              | 370,099              |
 |----------------------|----------------------|----------------------|----------------------|----------------------|
-| CharField            | .014103893999999784  | .0009496909999988645 | .0008854089999985604 | .007795620000003112  |
-| SearchVectorField    | .0009419720000005682 | .0004928250000002521 | .0005886239999988163 | .0005851559999996425 |
-| Char + Index         | .0012791679999999417 | .0006036560000008961 | .0005743679999987705 | .0008722190000014507 |
-| SearchVector + Index | .0008850980000003617 | .0005101700000000875 | .0008045750000000851 | .000564265000001285  |
+| CharField            | .0018870119999991886 | .0011454019999987963 | .0007141570000044339 | .000861889999995924  |
+| SearchVectorField    | .0008137989999994488 | .0006560049999997375 | .0007020010000005072 | .0006000810000017509 |
+| Char + Index         | .0006321439999998901 | .0008057759999999803 | .0005880140000016354 | .000538313999996376  |
+| SearchVector + Index | .0005834329999991894 | .0009325770000003786 | .0005893750000041109 | .0005222089999961099 |
+| BTree Index (bytes)  | 770048               | 4055040              | 7970816              | 14606336             |
+| GIN Index (bytes)    | 499712               | 2433024              | 11370496             | 15851520             |
 
 The following are the results for a four letter query using `icontains`.
 
-|                      | 20,000               | 100,000              | 200,000              | 370099               |
+|                      | 20,000               | 100,000              | 200,000              | 370,099              |
 |----------------------|----------------------|----------------------|----------------------|----------------------|
-| CharField            | .0008273679999994954 | .000500467000000171  | .0007317950000000906 | .0005774899999977379 |
-| SearchVectorField    | .000646103000000231  | .0005348899999990664 | .0013678130000016608 | .0005922900000001619 |
-| Char + Index         | .000635790000000469  | .0004974549999996469 | .02593128100000186   | .0005812670000011622 |
-| SearchVector + Index | .0006452390000006858 | .0004988819999987015 | .0012058699999997202 | .0006667739999954847 |
+| CharField            | .0005825000000001523 | .0013767680000000837 | .0005893750000041109 | .0005648419999957355 |
+| SearchVectorField    | .0005575970000002428 | .0008295879999984379 | .0007504889999978559 | .0005678309999979092 |
+| Char + Index         | .0005883070000001211 | .0007131819999983691 | .001916348000001733  | .0006092080000001943 |
+| SearchVector + Index | .0005402690000000376 | .0006276289999966878 | .0006567059999937896 | .0005303149999988932 |
+| BTree Index (bytes)  | 770048               | 4055040              | 7970816              | 14606336             |
+| GIN Index (bytes)    | 499712               | 2433024              | 11370496             | 15851520             |
 
 To see the full results, check out [results.txt](https://github.com/Andrew-Chen-Wang/postgres-django-icontains-performance/blob/master/results.txt).
 
 ## Conclusion
 
 The two biggest factors seemed to be the length of user input
-length and the number of objects in the database. There is
+and the number of objects in the database. There is
 also a slight inverse relationship between the two.
 
 This is mainly for finding the most efficient method of querying
 using `icontains`. For Donate Anything, there probably won't
-be more than a million items. Thus to save space,
-we're probably not going to use the SearchVectorField.
-It'll make the AWS RDS instance happy. Probably, because if
-there are going to be a million items in the database, then
-it'd be about time for ElasticSearch.
+be more than a million items; however, there will be lots of
+translations. I plan on adding some plug-ins like stem removing
+and the un-accent extension to save some space in addition to
+a dictionary of words that definitely shouldn't be in the tokenization.
 
 Based on the results, the search time is minimal, even up to
 370099 words. This is regardless of the field and index. 
