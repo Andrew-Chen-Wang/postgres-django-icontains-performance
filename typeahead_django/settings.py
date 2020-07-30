@@ -76,15 +76,28 @@ WSGI_APPLICATION = 'typeahead_django.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'typeahead',
-        'USER': 'postgres',
-        'PORT': '5432',
-        'HOST': 'localhost'
+if "TRAVIS" in os.environ:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'asdf',
+            'USER': 'blah',
+            'PASSWORD': 'blah',
+            'PORT': "5433",
+            'HOST': 'localhost'
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'typeahead',
+            'USER': 'postgres',
+            'PASSWORD': '',
+            'PORT': "5432",
+            'HOST': 'localhost'
+        }
+    }
 
 
 # Password validation

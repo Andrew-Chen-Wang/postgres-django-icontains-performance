@@ -29,34 +29,42 @@ the table.). Each query was performed 10,000 times to find an average.
 
 The following are the results for a two letter query using `icontains`.
 
-|                      | 20,000               | 100,000              | 200,000              | 370,099              |
-|----------------------|----------------------|----------------------|----------------------|----------------------|
-| CharField            | .0020984089619000036 | .001988032292700123  | .0018991238057999682 | .002431822135300274  |
-| SearchVectorField    | .0018781357522999987 | .0018380841300998838 | .0018222256922999236 | .0020044095713000957 |
-| Char + Index         | .0019768946458000114 | .001993863645300016  | .002191165284899802  | .002203354655999294  |
-| SearchVector + Index | .0018827794286000725 | .001803563312999941  | .0028036326952002527 | .0020528471941995575 |
-| BTree Index (bytes)  | 737280               | 4038656              | 7987200              | 14426112             |
-| GIN Index (bytes)    | 1744896              | 6807552              | 8626176              | 15204352             |
+|                      | 20,000                 | 100,000                | 200,000                | 370,099              |
+|----------------------|------------------------|------------------------|------------------------|----------------------|
+| CharField            | 4.0563607999998475e-06 | 1.0140782000068073e-06 | 3.345731800025931e-06  | 1.1925746000031268e-06  |
+| SearchVectorField    | 4.478697200006998e-06  | 5.1264475000078136e-06 | 6.7940737999805374e-06 | 1.1600425299964457e-05 |
+| Char + Index         | 1.3099410999975802e-06 | 1.2240283000011232e-06 | 1.1483104000618028e-06 | 1.1056564999449848e-06  |
+| SearchVector + Index | 1.0438225999999772e-06 | 1.256916100008354e-06  | 1.0608623999516453e-06 | 2.409129799882237e-06 |
+| BTree Index (bytes)  | 696320                 | 4210688                | 8265728                | 14548992             |
+| GIN Index (bytes)    | 499712                 | 2433024                | 11460608               | 12640256             |
 
 The following are the results for a four letter query using `icontains`.
 
-|                      | 20,000               | 100,000              | 200,000              | 370,099              |
-|----------------------|----------------------|----------------------|----------------------|----------------------|
-| CharField            | .0018526022455000173 | .0019125986364002727 | .002491743599299855  | .002018236057499246  |
-| SearchVectorField    | .0020149282166999783 | .0018530558955002902 | .0022240866331000573 | .0018321708575997832 |
-| Char + Index         | .001893137184600016  | .0019434230315999229 | .002137830329800192  | .0019526920810996671 |
-| SearchVector + Index | .0018650680977999798 | .0017777047066997965 | .0023440439428003    | .001942467717500449  |
-| BTree Index (bytes)  | 737280               | 4038656              | 7987200              | 14426112             |
-| GIN Index (bytes)    | 1744896              | 6807552              | 8626176              | 15204352             |
+|                      | 20,000                 | 100,000                | 200,000                | 370,099                |
+|----------------------|------------------------|------------------------|------------------------|------------------------|
+| CharField            | 1.5397245999964504e-06 | 1.127325100011589e-06  | 1.0684846000060589e-06 | 2.4510758000459986e-06 |
+| SearchVectorField    | 2.8315995000024687e-06 | 2.4477684000036247e-06 | 6.202969099967959e-06  | 1.1837768399951188e-05 |
+| Char + Index         | 2.0083184000008637e-06 | 1.2677050000007739e-06 | 1.0630535000139218e-06 | 1.0793565999776433e-06 |
+| SearchVector + Index | 1.5768463000013888e-06 | 1.6528725999929605e-06 | 1.6786233000360084e-06 | 1.7016839999612899e-06 |
+| BTree Index (bytes)  | 696320                 | 4210688                | 8265728                | 14426112               |
+| GIN Index (bytes)    | 499712                 | 2433024                | 11460608               | 15204352               |
 
-After multiple experiments, the index size stays relatively the same, except for the first 100 thousand.
+Edit: Note the results were slightly incorrect since the evaluation of the queryset
+didn't actually execute... because I was really tired and forgot `.explain()` won't
+actually perform the query. Using Postgres's ANALYZE flag will execute it, but the
+printing actually takes a little more time in the performance. The actual numbers
+are in results.txt and have also been updated here. Opinion remains the same.
+
+After multiple experiments, the B-Tree index size stays relatively the same, GIN too except for the first 100 thousand.
 
 To see the full results, check out [results.txt](https://github.com/Andrew-Chen-Wang/postgres-django-icontains-performance/blob/master/results.txt).
 
 ## Conclusion
 
-The two biggest factors seemed to be the length of user input
-and the number of objects in the database.
+~~The two biggest factors seemed to be the length of user input
+and the number of objects in the database.~~ Scratch that,
+there's VERY NEGLIGIBLE difference for performing single word
+queries. 
 
 This is mainly for finding the most efficient method of querying
 using `icontains`. For Donate Anything, there probably won't
@@ -72,8 +80,8 @@ we do have to make sure there is uniqueness for the name.
 
 Based on the results, the search time is minuscule, even up to
 370099 words. This is regardless of the field and index. 
-A caveat is definitely the fact that many items
-are two or more words long.
+~~A caveat is definitely the fact that many items
+are two or more words long.~~
 
 ## Usage
 

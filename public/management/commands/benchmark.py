@@ -17,6 +17,17 @@ def load_words() -> set:
     return valid_words
 
 
+# Check if words_alpha.txt exists
+path_to_dictionary = os.path.join(settings.BASE_DIR, "words_alpha.txt")
+if not os.path.exists(path_to_dictionary):
+    import zipfile
+    try:
+        with zipfile.ZipFile(path_to_dictionary[:-3] + "zip", "r") as zip_ref:
+            zip_ref.extractall(settings.BASE_DIR)
+    except FileNotFoundError as e:
+        raise FileNotFoundError(f"You must include the zip file of the English"
+                                f" dictionary in the BASE_DIR, specified:\n{e}.")
+
 words = [x.lower() for x in load_words()]
 
 
@@ -38,16 +49,16 @@ def find_most_frequent_letter_combo(length: int, start: int, end: int) -> str:
 
 def timing(string, queryset, pretty: bool, iterations: int = 10000):
     times = []
-    for x in range(iterations):
+    for _ in range(iterations):
         start = timeit.default_timer()
-        queryset.explain()
+        bool(queryset)
         stop = timeit.default_timer()
         times.append(stop - start)
     avg_time = sum(times) / iterations
     if pretty:
         print(string, f"Time: {avg_time}\n")
     else:
-        print(string, f"Time: {avg_time}\n", queryset.explain())
+        print(string, f"Time: {avg_time}\n", queryset.explain(analyze=True))
 
 
 def benchmark(start: int, end: int, iterations: int, pretty: bool):
@@ -135,17 +146,6 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         if not options["use_existing"]:
             call_command("flush", "--noinput")
-
-        # Check if words_alpha.txt exists
-        path_to_dictionary = os.path.join(settings.BASE_DIR, "words_alpha.txt")
-        if not os.path.exists(path_to_dictionary):
-            import zipfile
-            try:
-                with zipfile.ZipFile(path_to_dictionary[:-3] + "zip", "r") as zip_ref:
-                    zip_ref.extractall(settings.BASE_DIR)
-            except FileNotFoundError as e:
-                raise FileNotFoundError(f"You must include the zip file of the English"
-                                        f" dictionary in the BASE_DIR, specified:\n{e}.")
 
         # Start Tests
         # Level 1: first 20,000 items

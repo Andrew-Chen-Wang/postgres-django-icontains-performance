@@ -1,0 +1,29 @@
+os: linux
+dist: xenial
+
+language: python
+cache: pip
+python: 3.8
+
+addons:
+  postgresql: '12'
+  apt:
+    packages:
+      - postgresql-12
+      - postgresql-client-12
+
+jobs:
+  include:
+    - name: "test"
+      env:
+        - PGVER=12
+        - PGPORT=5433
+      install:
+        - pip install -r requirements.txt
+      before_script:
+        - psql -c "CREATE USER blah SUPERUSER PASSWORD 'blah';"
+        - psql -c 'create database asdf;'
+        - python manage.py migrate
+      script:
+        - python manage.py test
+        - python manage.py benchmark
